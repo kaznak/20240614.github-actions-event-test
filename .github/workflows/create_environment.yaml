@@ -24,7 +24,7 @@ jobs:
             --method PUT \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/kaznak/20240614.github-actions-event-test/environments/$(cat /tmp/envname.txt)  \
+            /repos/$GITHUB_ACTION_REPOSITORY/environments/$(cat /tmp/envname.txt)  \
             -F "wait_timer=30"
       - name: set environment variables
         env:
@@ -37,7 +37,7 @@ jobs:
               --method POST \\
               -H \"Accept: application/vnd.github+json\" \\
               -H \"X-GitHub-Api-Version: 2022-11-28\" \\
-              /repos/kaznak/20240614.github-actions-event-test/environments/'$(cat /tmp/envname.txt)'/variables \\
+              /repos/$GITHUB_ACTION_REPOSITORY/environments/'$(cat /tmp/envname.txt)'/variables \\
                -f \"name=\(.key)\" -f \"value=\(.value)\"
             "'  \
           | bash -vx
