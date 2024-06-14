@@ -3,11 +3,6 @@ name: Trigger: pull_request
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synclonized
-      - closed
 
 jobs:
   dumpInfo:
