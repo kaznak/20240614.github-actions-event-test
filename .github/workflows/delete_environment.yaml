@@ -15,12 +15,15 @@ jobs:
       - run: echo '${{ toJSON(env) }}'
       - run: echo '${{ toJSON(vars) }}'
       - run: echo '${{ toJSON(secrets) }}'
+      - run: gh version
 
   deleteEnvironment:
     runs-on: ubuntu-22.04
     steps:
-      - run: gh version
-      - run: echo -n dev-$(echo "$HEAD_REF" | sha1sum | cut -c1-8) | tee /tmp/envname.txt
+      - name: generate environment name
+        run: |
+          echo "ENV_NAME=dev-$(echo "$HEAD_REF" | sha1sum | cut -c1-8)"  \
+          | tee $GITHUB_ENV
         env:
           HEAD_REF: ${{ github.head_ref || github.ref_name }}
       - shell: bash
@@ -30,6 +33,6 @@ jobs:
             --method DELETE \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/$GITHUB_REPOSITORY/environments/$(cat /tmp/envname.txt)
+            /repos/$GITHUB_REPOSITORY/environments/$ENV_NAME
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN_ENVIRONMENT_OPERATION }}
