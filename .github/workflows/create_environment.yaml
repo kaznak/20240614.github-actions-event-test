@@ -43,7 +43,7 @@ jobs:
           VARIABLES_FOR_ENVIRONMENTS: ${{ vars.VARIABLES_FOR_ENVIRONMENTS }}
         run: |
           echo "$VARIABLES_FOR_ENVIRONMENTS"  \
-          | jq 'to_entries|.[]|"
+          | jq -r 'to_entries|.[]|"
             gh api \\
               --method POST \\
               -H \"Accept: application/vnd.github+json\" \\
