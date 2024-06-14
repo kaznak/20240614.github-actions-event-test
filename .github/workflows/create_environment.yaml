@@ -16,11 +16,11 @@ jobs:
       - run: echo '${{ toJSON(env) }}'
       - run: echo '${{ toJSON(vars) }}'
       - run: echo '${{ toJSON(secrets) }}'
+      - run: gh version
 
   createEnvironment:
     runs-on: ubuntu-22.04
     steps:
-      - run: gh version
       - name: generate environment name
         run: |
           echo "ENV_NAME=dev-$(echo "$HEAD_REF" | sha1sum | cut -c1-8)"  \
