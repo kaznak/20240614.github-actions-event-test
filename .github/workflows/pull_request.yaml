@@ -8,7 +8,7 @@ on:
       - reopened
       - synchronize
       - closed
-      
+
 jobs:
   dumpInfo:
     runs-on: ubuntu-22.04
