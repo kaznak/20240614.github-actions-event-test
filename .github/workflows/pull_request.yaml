@@ -1,4 +1,4 @@
-name: Trigger: pull_request
+name: "Trigger: pull_request"
 
 on:
   workflow_dispatch:
