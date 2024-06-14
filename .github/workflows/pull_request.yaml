@@ -17,7 +17,6 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_ACTIONS: ${{ github.event.action }}
           EVENT_MERGED: ${{ github.event.pull_request.merged }}
+          GITHUB_CONTEXT: ${{ toJSON(github)} }}
         run: |
-          cat <<EOF
-          ${{ toJSON(github)} }}
-          EOF
+          echo "$GITHUB_CONTEXT"
