@@ -20,6 +20,8 @@ jobs:
             --method PUT \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/kaznak/20240614.github-actions-event-test/environments/$(cat /tmp/envname.txt)
+            /repos/kaznak/20240614.github-actions-event-test/environments/$(cat /tmp/envname.txt)  \
+            -F "wait_timer=30"
+            
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN_ENVIRONMENT_OPERATION }}
