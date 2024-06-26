@@ -29,4 +29,16 @@ jobs:
           run: echo '${{ toJSON(vars) }}'
         - name: toJSON(secrets)
           run: echo '${{ toJSON(secrets) }}'
+        - name: toJSON(job)
+          run: echo '${{ toJSON(job) }}'
+        - name: toJSON(steps)
+          run: echo '${{ toJSON(steps) }}'
+        - name: toJSON(runner)
+          run: echo '${{ toJSON(runner) }}'
+        - name: toJSON(strategy)
+          run: echo '${{ toJSON(strategy) }}'
+        - name: toJSON(matrix)
+          run: echo '${{ toJSON(matrix) }}'
+        - name: toJSON(needs)
+          run: echo '${{ toJSON(needs) }}'
         - run: gh version
