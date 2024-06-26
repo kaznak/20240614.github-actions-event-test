@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
         - run: env
+        - run: echo '${{ toJSON(inputs) }}'
         - run: echo '${{ toJSON(github) }}'
         - run: echo '${{ toJSON(env) }}'
         - run: echo '${{ toJSON(vars) }}'
