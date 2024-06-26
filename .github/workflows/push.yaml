@@ -7,4 +7,6 @@ on:
 jobs:
   dumpInfo:
     uses: ./.github/workflows/workflow_call.yaml
-    with: {}
+    with:
+      required_default_var: hoge
+      required_var: uho
