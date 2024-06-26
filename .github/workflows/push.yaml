@@ -12,7 +12,5 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_ACTIONS: ${{ github.event.action }}
           EVENT_MERGED: ${{ github.event.pull_request.merged }}
-        run: |
-          cat <<EOF
-          ${{ toJSON(github) }}
-          EOF
+        uses: ./.github/workflows/workflow_call.yaml
+        with: {}

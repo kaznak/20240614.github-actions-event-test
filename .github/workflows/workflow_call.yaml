@@ -1,0 +1,28 @@
+name: "Trigger: workflow_call: dump context"
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+        required_default_var:
+            description: required variable with default value
+            required: true
+            default: default value
+            type: string
+        required_var:
+            description: required variable without default value
+            required: true
+            type: string
+
+jobs:
+  dumpInfo:
+    runs-on: ubuntu-22.04
+    steps:
+      - env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTIONS: ${{ github.event.action }}
+          EVENT_MERGED: ${{ github.event.pull_request.merged }}
+        run: |
+          cat <<EOF
+          ${{ toJSON(github) }}
+          EOF
