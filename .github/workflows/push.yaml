@@ -5,8 +5,13 @@ on:
   push:
 
 jobs:
-  dumpInfo:
+  dumpInfo0:
     uses: ./.github/workflows/workflow_call.yaml
     with:
       required_default_var: hoge
       required_var: uho
+
+  dumpContext:
+    runs-on: ubuntu-22.04
+    steps:
+     - uses: kaznak/gha-dump-context@main
