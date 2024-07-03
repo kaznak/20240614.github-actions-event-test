@@ -1,4 +1,4 @@
-name: "Trigger: workflow_call: dump context"
+name: "actions test: node-setup@v4"
 
 on:
   workflow_dispatch:
