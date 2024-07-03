@@ -2,6 +2,7 @@ name: "actions test: node-setup@v4"
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   setp-node:
