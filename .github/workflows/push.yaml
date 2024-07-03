@@ -12,6 +12,10 @@ jobs:
       required_var: uho
 
   dumpContext:
+    if: false
     runs-on: ubuntu-22.04
     steps:
      - uses: kaznak/gha-dump-context@main
+
+  setupNode:
+    uses: ./.github/workflows/setup-node.yaml
