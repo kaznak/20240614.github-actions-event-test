@@ -10,7 +10,12 @@ secret GH_TOKEN_ENVIRONMENT_OPERATION の設定が必要。パーミッション
 - Read and Write access to administration
 - Read and Write access to environments
 
-## トリガのメモ
+## メモ
+
+### 命名規則
+
+名前はスネークケース。
+キーワードはケバブケース。
 
 ### push
 
