@@ -8,15 +8,33 @@ on:
   #     - reopened
 
 jobs:
-  dumpContexts:
+  dump_contexts:
     runs-on: ubuntu-22.04
     steps:
-      - run: env
-      - run: echo '${{ toJSON(github) }}'
-      - run: echo '${{ toJSON(env) }}'
-      - run: echo '${{ toJSON(vars) }}'
-      - run: echo '${{ toJSON(secrets) }}'
-      - run: gh version
+        - run: env
+        - name: toJSON(inputs)
+          run: echo '${{ toJSON(inputs) }}'
+        - name: toJSON(github)
+          run: echo '${{ toJSON(github) }}'
+        - name: toJSON(env)
+          run: echo '${{ toJSON(env) }}'
+        - name: toJSON(vars)
+          run: echo '${{ toJSON(vars) }}'
+        - name: toJSON(secrets)
+          run: echo '${{ toJSON(secrets) }}'
+        - name: toJSON(job)
+          run: echo '${{ toJSON(job) }}'
+        - name: toJSON(steps)
+          run: echo '${{ toJSON(steps) }}'
+        - name: toJSON(runner)
+          run: echo '${{ toJSON(runner) }}'
+        - name: toJSON(strategy)
+          run: echo '${{ toJSON(strategy) }}'
+        - name: toJSON(matrix)
+          run: echo '${{ toJSON(matrix) }}'
+        - name: toJSON(needs)
+          run: echo '${{ toJSON(needs) }}'
+        - run: gh version
 
   createEnvironment:
     runs-on: ubuntu-22.04
