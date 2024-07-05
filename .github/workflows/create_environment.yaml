@@ -109,7 +109,7 @@ jobs:
             "'  \
           | bash -vxe
           # check whether all piped commands exit successfuly.
-          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0 ; then false ; else true ; fi
+          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv '^0$' ; then false ; else true ; fi
 
       - name: get environment public key
         run: |
@@ -119,7 +119,7 @@ jobs:
           | jq -r '"key_id=\(.key_id)\nkey=\(.key)"'  \
           | tee -a $GITHUB_ENV
           # check whether all piped commands exit successfuly.
-          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0 ; then false ; else true ; fi
+          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv '^0$' ; then false ; else true ; fi
  
       - name: set environment secrets
         env:
@@ -138,4 +138,4 @@ jobs:
             "'  \
           | bash -vxe
           # check whether all piped commands exit successfuly.
-          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0 ; then false ; else true ; fi
+          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv '^0$' ; then false ; else true ; fi
