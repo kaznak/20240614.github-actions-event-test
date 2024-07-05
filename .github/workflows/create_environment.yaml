@@ -84,8 +84,9 @@ jobs:
       
       - name: create environment
         run: |
-          gh api ${GH_API_HEADER}  \
+          gh api  \
             --method PUT \
+              ${GH_API_HEADER}  \
               "/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}"
 
       - name: set environment variables
@@ -93,12 +94,14 @@ jobs:
           echo "$VARIABLES"  \
           | jq -r 'to_entries|.[]|"
             ENDPOINT=\"/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/variables\"
-            gh api ${GH_API_HEADER}  \\
+            gh api  \
               --method POST \\
+                ${GH_API_HEADER}  \
               \"${ENDPOINT}\" \\
                 -f \"name=\(.key)\" -f \"value=\(.value)\"  \\
-            || gh api ${GH_API_HEADER}  \\
+            || gh api  \
               --method PATCH \
+                ${GH_API_HEADER}  \              
               \"${ENDPOINT}/\(.key)\" \\
                 -f \"name=\(.key)\" -f \"value=\(.value)\"
             "'  \
@@ -106,7 +109,8 @@ jobs:
 
       - name: get environment public key
         run: |
-          gh api ${GH_API_HEADER}  \
+          gh api  \
+              ${GH_API_HEADER}  \
               "/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/secrets/public-key"  \
           | jq -r '"key_id=\(.key_id)\nkey=\(.key)"'  \
           | tee -a $GITHUB_ENV
@@ -121,8 +125,9 @@ jobs:
           echo "$SECRETS"  \
           | node .github/scripts/encode-json "${SECRET_ENCRYPTION_KEY}" \
           | jq -r 'to_entries|.[]|"
-            gh api ${GH_API_HEADER}  \\
+            gh api  \
               --method POST \\
+                ${GH_API_HEADER}  \
                 \"/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/secrets/\(.key)\" \\
               -f \"encrypted_value=\(.value)\"  \\
               -f \"key_id=${SECRET_ENCRYPTION_KEY_ID}\"
