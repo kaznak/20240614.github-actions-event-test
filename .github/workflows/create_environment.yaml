@@ -69,6 +69,9 @@ jobs:
 
   create_environment:
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
     env:
       GH_ENDPOINT_HEAD: /repos/${GITHUB_REPOSITORY}/environments/${{ inputs.env-name }}
       GH_TOKEN: ${{ inputs.token || github.token }}
@@ -105,6 +108,7 @@ jobs:
                 -f \"name=\(.key)\" -f \"value=\(.value)\"
             "'  \
           | bash -vx
+          echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0
 
       - name: get environment public key
         run: |
@@ -113,8 +117,7 @@ jobs:
               "/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/secrets/public-key"  \
           | jq -r '"key_id=\(.key_id)\nkey=\(.key)"'  \
           | tee -a $GITHUB_ENV
-          [ ! -z "${{ env.key_id }}" ]
-          [ ! -z "${{ env.key }}" ]
+          echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0
  
       - name: set environment secrets
         env:
@@ -132,4 +135,5 @@ jobs:
                   -f \"key_id=${SECRET_ENCRYPTION_KEY_ID}\"
             "'  \
           | bash -vx
+          echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0
  
