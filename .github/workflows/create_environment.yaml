@@ -94,15 +94,15 @@ jobs:
         run: |
           echo "$VARIABLES"  \
           | jq -r 'to_entries|.[]|"
-            ENDPOINT=\"${GH_ENDPOINT_HEAD}/variables\" \
-            gh api  \
+            ENDPOINT=\"${GH_ENDPOINT_HEAD}/variables\" \n
+            gh api  \\
               --method POST \\
-              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \\
                 \"${ENDPOINT}\" \\
                   -f \"name=\(.key)\" -f \"value=\(.value)\"  \\
-            || gh api  \
-              --method PATCH \
-              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \
+            || gh api  \\
+              --method PATCH \\
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \\
               \"${ENDPOINT}/\(.key)\" \\
                 -f \"name=\(.key)\" -f \"value=\(.value)\"
             "'  \
@@ -126,9 +126,9 @@ jobs:
           echo "$SECRETS"  \
           | node .github/scripts/encode-json "${SECRET_ENCRYPTION_KEY}" \
           | jq -r 'to_entries|.[]|"
-            gh api  \
+            gh api  \\
               --method POST \\
-              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \\
                 \"${GH_ENDPOINT_HEAD}/secrets/\(.key)\" \\
                   -f \"encrypted_value=\(.value)\"  \\
                   -f \"key_id=${SECRET_ENCRYPTION_KEY_ID}\"
