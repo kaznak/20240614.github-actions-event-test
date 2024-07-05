@@ -5,6 +5,14 @@ on:
   # pull_request_target:
   #   types:
   #     - closed
+  workflow_call:
+    inputs:
+      token:
+        type: string
+        default: ${{ github.token }}
+      env-name:
+        type: string
+        required: true
 
 jobs:
   dump_contexts:
@@ -40,7 +48,7 @@ jobs:
     steps:
       - name: generate environment name
         run: |
-          echo "ENV_NAME=dev-$(echo "$HEAD_REF" | sha1sum | cut -c1-8)"  \
+          echo "ENV_NAME="  \
           | tee $GITHUB_ENV
         env:
           HEAD_REF: ${{ github.head_ref || github.ref_name }}
@@ -53,4 +61,5 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/$GITHUB_REPOSITORY/environments/$ENV_NAME
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN_ENVIRONMENT_OPERATION }}
+          GH_TOKEN: ${{ inputs.token }}
+          ENV_NAME: ${{ inputs.env-name }}
