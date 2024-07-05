@@ -9,7 +9,7 @@ on:
     inputs:
       token:
         type: string
-        default: ${{ github.token }}
+        description: default value is github.token
       env-name:
         type: string
         required: true
@@ -25,7 +25,7 @@ on:
     inputs:
       token:
         type: string
-        default: ${{ github.token }}
+        description: default value is github.token
       env-name:
         type: string
         required: true
@@ -70,7 +70,7 @@ jobs:
   createEnvironment:
     runs-on: ubuntu-22.04
     env:
-      GH_TOKEN: ${{ inputs.token }}
+      GH_TOKEN: ${{ inputs.token || github.token }}
       ENV_NAME: ${{ inputs.env-name }}
       VARIABLES: ${{ inputs.env-vars }}
       SECRETS: ${{ inputs.env-secrets }}
