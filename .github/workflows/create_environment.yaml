@@ -73,9 +73,8 @@ jobs:
       run:
         shell: bash
     env:
-      GH_ENDPOINT_HEAD: /repos/${GITHUB_REPOSITORY}/environments/${{ inputs.env-name }}
+      GH_ENDPOINT_HEAD: /repos/${{ github.repository }}/environments/${{ inputs.env-name }}
       GH_TOKEN: ${{ inputs.token || github.token }}
-      ENV_NAME: ${{ inputs.env-name }}
       VARIABLES: ${{ inputs.env-vars }}
       SECRETS: ${{ inputs.env-secrets }}
     steps:
@@ -89,13 +88,13 @@ jobs:
           gh api  \
             --method PUT \
             -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
-              "/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}"
+              "${GH_ENDPOINT_HEAD}"
 
       - name: set environment variables
         run: |
           echo "$VARIABLES"  \
           | jq -r 'to_entries|.[]|"
-            ENDPOINT=\"/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/variables\"
+            ENDPOINT=\"${GH_ENDPOINT_HEAD}/variables\" \
             gh api  \
               --method POST \\
               -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
@@ -103,7 +102,7 @@ jobs:
                   -f \"name=\(.key)\" -f \"value=\(.value)\"  \\
             || gh api  \
               --method PATCH \
-                ${GH_API_HEADER}  \              
+              -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
               \"${ENDPOINT}/\(.key)\" \\
                 -f \"name=\(.key)\" -f \"value=\(.value)\"
             "'  \
@@ -114,7 +113,7 @@ jobs:
         run: |
           gh api  \
             -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
-              "/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/secrets/public-key"  \
+              "${GH_ENDPOINT_HEAD}/secrets/public-key"  \
           | jq -r '"key_id=\(.key_id)\nkey=\(.key)"'  \
           | tee -a $GITHUB_ENV
           echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0
@@ -130,7 +129,7 @@ jobs:
             gh api  \
               --method POST \\
               -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
-                \"/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/secrets/\(.key)\" \\
+                \"${GH_ENDPOINT_HEAD}/secrets/\(.key)\" \\
                   -f \"encrypted_value=\(.value)\"  \\
                   -f \"key_id=${SECRET_ENCRYPTION_KEY_ID}\"
             "'  \
