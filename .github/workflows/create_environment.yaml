@@ -97,12 +97,12 @@ jobs:
             ENDPOINT=\"${GH_ENDPOINT_HEAD}/variables\" \
             gh api  \
               --method POST \\
-              -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \
                 \"${ENDPOINT}\" \\
                   -f \"name=\(.key)\" -f \"value=\(.value)\"  \\
             || gh api  \
               --method PATCH \
-              -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \
               \"${ENDPOINT}/\(.key)\" \\
                 -f \"name=\(.key)\" -f \"value=\(.value)\"
             "'  \
@@ -128,7 +128,7 @@ jobs:
           | jq -r 'to_entries|.[]|"
             gh api  \
               --method POST \\
-              -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \
                 \"${GH_ENDPOINT_HEAD}/secrets/\(.key)\" \\
                   -f \"encrypted_value=\(.value)\"  \\
                   -f \"key_id=${SECRET_ENCRYPTION_KEY_ID}\"
