@@ -82,6 +82,7 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
+      - run: npm i -g git@github.com:kaznak/libsodium_cli.git
       
       - name: create environment
         run: |
@@ -126,7 +127,7 @@ jobs:
           SECRET_ENCRYPTION_KEY: ${{ env.key }}
         run: |
           echo "$SECRETS"  \
-          | node .github/scripts/encode-json "${SECRET_ENCRYPTION_KEY}" \
+          | libsodium encrypt_gh_secret_json_map "${SECRET_ENCRYPTION_KEY}" \
           | jq -r 'to_entries|.[]|"
             gh api  \\
               --method POST \\
