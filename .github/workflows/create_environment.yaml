@@ -1,6 +1,10 @@
 name: Create Environment
 
 on:
+  # pull_request_target:
+  #   types:
+  #     - opened
+  #     - reopened
   workflow_dispatch:
     inputs:
       token:
@@ -17,10 +21,6 @@ on:
         type: string
         description: JSON map for secret variables
         default: '{}'
-  # pull_request_target:
-  #   types:
-  #     - opened
-  #     - reopened
   workflow_call:
     inputs:
       token:
