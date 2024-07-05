@@ -2,6 +2,13 @@ name: Delete Environment
 
 on:
   workflow_dispatch:
+    inputs:
+      token:
+        type: string
+        default: ${{ github.token }}
+      env-name:
+        type: string
+        required: true
   # pull_request_target:
   #   types:
   #     - closed
