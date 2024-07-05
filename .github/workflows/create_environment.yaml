@@ -2,6 +2,21 @@ name: Create Environment
 
 on:
   workflow_dispatch:
+    inputs:
+      token:
+        type: string
+        default: ${{ github.token }}
+      env-name:
+        type: string
+        required: true
+      env-vars:
+        type: string
+        description: JSON map for environment variables
+        default: '{}'
+      env-secrets:
+        type: string
+        description: JSON map for secret variables
+        default: '{}'
   # pull_request_target:
   #   types:
   #     - opened
