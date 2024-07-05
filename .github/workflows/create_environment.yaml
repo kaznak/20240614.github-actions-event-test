@@ -139,4 +139,3 @@ jobs:
           | bash -vxe
           # check whether all piped commands exit successfuly.
           if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0 ; then false ; else true ; fi
- 

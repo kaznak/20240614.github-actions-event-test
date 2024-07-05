@@ -53,6 +53,7 @@ jobs:
   delete_environment:
     runs-on: ubuntu-22.04
     env:
+      GH_ENDPOINT_HEAD: /repos/${{ github.repository }}/environments/${{ inputs.env-name }}
       GH_TOKEN: ${{ inputs.token || github.token }}
       ENV_NAME: ${{ inputs.env-name }}
     steps:
@@ -63,4 +64,4 @@ jobs:
             --method DELETE \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/$GITHUB_REPOSITORY/environments/$ENV_NAME
+            ${GH_ENDPOINT_HEAD}
