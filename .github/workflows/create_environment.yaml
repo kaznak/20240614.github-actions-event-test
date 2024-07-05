@@ -9,7 +9,7 @@ on:
     inputs:
       token:
         type: string
-        description: default value is github.token
+        description: a github token with specific permissions
       env-name:
         type: string
         required: true
@@ -25,7 +25,7 @@ on:
     inputs:
       token:
         type: string
-        description: default value is github.token
+        description: a github token with specific permissions
       env-name:
         type: string
         required: true
