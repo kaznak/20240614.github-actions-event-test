@@ -6,6 +6,22 @@ on:
   #   types:
   #     - opened
   #     - reopened
+  workflow_call:
+    inputs:
+      token:
+        type: string
+        default: ${{ github.token }}
+      env-name:
+        type: string
+        required: true
+      env-vars:
+        type: string
+        description: JSON map for environment variables
+        default: '{}'
+      env-secrets:
+        type: string
+        description: JSON map for secret variables
+        default: '{}'
 
 jobs:
   dump_contexts:
@@ -38,36 +54,60 @@ jobs:
 
   createEnvironment:
     runs-on: ubuntu-22.04
+    env:
+      GH_TOKEN: ${{ inputs.token }}
+      ENV_NAME: ${{ inputs.env-name }}
+      VARIABLES: ${{ inputs.env-vars }}
+      SECRETS: ${{ inputs.env-secrets }}
     steps:
-      - name: generate environment name
-        run: |
-          echo "ENV_NAME=dev-$(echo "$HEAD_REF" | sha1sum | cut -c1-8)"  \
-          | tee $GITHUB_ENV
-        env:
-          HEAD_REF: ${{ github.head_ref || github.ref_name }}
+      - uses: actions/setup-node@v4
+      
       - name: create environment
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN_ENVIRONMENT_OPERATION }}
         run: |
           gh api \
             --method PUT \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/$GITHUB_REPOSITORY/environments/$ENV_NAME  \
-            -F "wait_timer=30"
+              "/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}"
+
       - name: set environment variables
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN_ENVIRONMENT_OPERATION }}
-          VARIABLES_FOR_ENVIRONMENTS: ${{ vars.VARIABLES_FOR_ENVIRONMENTS }}
         run: |
-          echo "$VARIABLES_FOR_ENVIRONMENTS"  \
+          echo "$VARIABLES"  \
           | jq -r 'to_entries|.[]|"
             gh api \\
               --method POST \\
               -H \"Accept: application/vnd.github+json\" \\
               -H \"X-GitHub-Api-Version: 2022-11-28\" \\
-              /repos/$GITHUB_REPOSITORY/environments/$ENV_NAME/variables \\
-               -f \"name=\(.key)\" -f \"value=\(.value)\"
+              \"/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/variables\" \\
+                -f \"name=\(.key)\" -f \"value=\(.value)\"
+            "'  \
+          | bash -vx
+
+      - name: get environment public key
+        run: |
+          gh api \
+            --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+              "/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/secrets/public-key"  \
+          | jq -r '"key_id=\(.key_id)\nkey=\(.key)"'  \
+          | tee -a $GITHUB_ENV
+ 
+      - name: set environment secrets
+        env:
+          SECRET_ENCRYPTION_KEY_ID: ${{ env.key_id }}
+          SECRET_ENCRYPTION_KEY: ${{ env.key }}
+        run: |
+          echo "$SECRETS"  \
+          | node .github/scripts/encode-json "${SECRET_ENCRYPTION_KEY}" \
+          | jq -r 'to_entries|.[]|"
+            gh api \\
+              --method POST \\
+              -H \"Accept: application/vnd.github+json\" \\
+              -H \"X-GitHub-Api-Version: 2022-11-28\" \\
+                \"/repos/${GITHUB_REPOSITORY}/environments/${ENV_NAME}/secrets/\(.key)\" \\
+              -f \"encrypted_value=\(.value)\"  \\
+              -f \"key_id=${SECRET_ENCRYPTION_KEY_ID}\"
             "'  \
           | bash -vx
  
