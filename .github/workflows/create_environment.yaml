@@ -107,7 +107,7 @@ jobs:
               \"${ENDPOINT}/\(.key)\" \\
                 -f \"name=\(.key)\" -f \"value=\(.value)\"
             "'  \
-          | bash -vx
+          | bash -vxe
           # check whether all piped commands exit successfuly.
           if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0 ; then false ; else true ; fi
 
@@ -130,13 +130,13 @@ jobs:
           | libsodium encrypt_gh_secret_json_map "${SECRET_ENCRYPTION_KEY}" \
           | jq -r 'to_entries|.[]|"
             gh api  \\
-              --method POST \\
+              --method PUT \\
               -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \\
                 \"${GH_ENDPOINT_HEAD}/secrets/\(.key)\" \\
                   -f \"encrypted_value=\(.value)\"  \\
                   -f \"key_id=${SECRET_ENCRYPTION_KEY_ID}\"
             "'  \
-          | bash -vx
+          | bash -vxe
           # check whether all piped commands exit successfuly.
           if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv 0 ; then false ; else true ; fi
  
