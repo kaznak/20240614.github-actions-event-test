@@ -75,6 +75,9 @@ jobs:
       VARIABLES: ${{ inputs.env-vars }}
       SECRETS: ${{ inputs.env-secrets }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
       
       - name: create environment
