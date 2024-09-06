@@ -1,0 +1,42 @@
+name: Z10 Test - Create Environments
+
+on:
+  workflow_dispatch:
+    inputs:
+      env-name:
+        type: string
+        required: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_include: ${{ steps.output_matrix_include.outputs.matrix_include }}
+    steps:
+        - name: make output.matrix_include
+          id: output_matrix_include
+          shell: bash
+          env:
+            # NOTE secret の値を参照していると output に反映されられないケースがあるので、ここでは vars しか見ない。
+            vars: ${{ vars.ENVIRONMENTS_VARIABLES_DEV }}
+            env_name: ${{ inputs.env-name || 'Task' }}
+          run: |
+            cat <<EOF |
+            $vars
+            EOF
+            jq 'keys|map({"env-name":"'$env_name' - \(.)","env-key":.})' |
+            { echo -n "matrix_include=" ; jq -c '.' ; } |
+            tee -a ${GITHUB_OUTPUT:-"/dev/null"}
+
+  create-environment:
+    needs: prepare
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix_include) }}
+    uses: ./.github/workflows/z00_common.create_environment.yaml
+    with:
+      env-name: ${{ matrix.env-name }}
+      env-vars: ${{ toJSON(fromJSON(vars.ENVIRONMENTS_VARIABLES_DEV)[matrix.env-key]) || '{}' }}
+    secrets:
+      token: ${{ secrets.GH_TOKEN_ENVIRONMENT_OPERATION }}
+      env-secrets: ${{ toJSON(fromJSON(secrets.ENVIRONMENTS_SECRETS_DEV)[matrix.env-key]) || '{}' }}
