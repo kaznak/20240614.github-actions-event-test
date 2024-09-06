@@ -1,0 +1,28 @@
+name: Z00 Common - Delete Environment
+
+on:
+  workflow_call:
+    secrets:
+      token:
+        description: a github token with specific permissions. the default value is github.tokens.
+        # NOTE: DO NOT use default property in the trigger settings. github context is not defined before dispatch or call.
+    inputs:
+      env-name:
+        type: string
+        required: true
+
+jobs:
+  delete_environment:
+    runs-on: ubuntu-22.04
+    env:
+      GH_ENDPOINT_HEAD: /repos/${{ github.repository }}/environments/${{ inputs.env-name }}
+      GH_TOKEN: ${{ secrets.token || github.token }}
+    steps:
+      - shell: bash
+        run: |
+          set -x
+          gh api \
+            --method DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            ${GH_ENDPOINT_HEAD}
