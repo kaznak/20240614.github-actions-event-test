@@ -1,0 +1,93 @@
+name: Z00 Common - Create Environment
+
+on:
+  workflow_call:
+    inputs:
+      env-name:
+        type: string
+        required: true
+      env-vars:
+        type: string
+        description: JSON map for environment variables
+        default: '{}'
+    secrets:
+      token:
+        description: a github token with specific permissions. the default value is github.tokens.
+        # NOTE: DO NOT use default property in the trigger settings. github context is not defined before dispatch or call.
+      env-secrets:
+        description: JSON map for secret variables
+
+jobs:
+  create_environment:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_ENDPOINT_HEAD: /repos/${{ github.repository }}/environments/${{ inputs.env-name }}
+      GH_TOKEN: ${{ secrets.token || github.token }}
+      # NOTE: DO NOT use default property in the trigger settings. github context is not defined before dispatch or call.
+      VARIABLES: ${{ inputs.env-vars }}
+      SECRETS: ${{ secrets.env-secrets }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v4
+      - run: npm i -g git@github.com:kaznak/libsodium_cli.git
+      
+      - name: create environment
+        run: |
+          gh api  \
+            --method PUT \
+            -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
+              "${GH_ENDPOINT_HEAD}"
+
+      - name: set environment variables
+        run: |
+          echo "$VARIABLES"  \
+          | jq -r 'to_entries|.[]|"
+            ENDPOINT=\"${GH_ENDPOINT_HEAD}/variables\" \n
+            gh api  \\
+              --method POST \\
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \\
+                \"${ENDPOINT}\" \\
+                  -f \"name=\(.key)\" -f \"value=\(.value)\"  \\
+            || gh api  \\
+              --method PATCH \\
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \\
+              \"${ENDPOINT}/\(.key)\" \\
+                -f \"name=\(.key)\" -f \"value=\(.value)\"
+            "'  \
+          | bash -vxe
+          # check whether all piped commands exit successfuly.
+          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv '^0$' ; then false ; else true ; fi
+
+      - name: get environment public key
+        run: |
+          gh api  \
+            -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28"  \
+              "${GH_ENDPOINT_HEAD}/secrets/public-key"  \
+          | jq -r '"key_id=\(.key_id)\nkey=\(.key)"'  \
+          | tee -a $GITHUB_ENV
+          # check whether all piped commands exit successfuly.
+          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv '^0$' ; then false ; else true ; fi
+ 
+      - name: set environment secrets
+        env:
+          SECRET_ENCRYPTION_KEY_ID: ${{ env.key_id }}
+          SECRET_ENCRYPTION_KEY: ${{ env.key }}
+        run: |
+          echo "$SECRETS"  \
+          | libsodium encrypt_gh_secret_json_map "${SECRET_ENCRYPTION_KEY}" \
+          | jq -r 'to_entries|.[]|"
+            gh api  \\
+              --method PUT \\
+              -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\"  \\
+                \"${GH_ENDPOINT_HEAD}/secrets/\(.key)\" \\
+                  -f \"encrypted_value=\(.value)\"  \\
+                  -f \"key_id=${SECRET_ENCRYPTION_KEY_ID}\"
+            "'  \
+          | bash -vxe
+          # check whether all piped commands exit successfuly.
+          if echo ${PIPESTATUS[@]} | tr ' ' '\n' | grep -qv '^0$' ; then false ; else true ; fi
